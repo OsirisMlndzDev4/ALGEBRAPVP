@@ -1,0 +1,739 @@
+/* ====================================
+   GAME - Player Cards, Spell Bar, Deck
+   ==================================== */
+
+/* === PLAYER CARDS === */
+.player-card {
+    padding: var(--spacing-lg);
+    position: relative;
+}
+
+.player-card.active {
+    border-color: var(--color-success);
+    box-shadow: 0 0 0 1px var(--color-success), 0 0 20px rgba(52, 199, 89, 0.15);
+    animation: turnActive 0.5s ease forwards;
+}
+
+.player-card.active::before {
+    content: 'Tu turno';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--color-success);
+    color: #000;
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    animation: turnBadge 0.3s ease forwards;
+}
+
+.player-card.compact {
+    flex: 1;
+    padding: var(--spacing-md);
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.player-card.p1-card {
+    margin-right: -20px;
+    padding-right: 40px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.player-card.p2-card {
+    margin-left: -20px;
+    padding-left: 40px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    text-align: right;
+}
+
+.player-card.vertical-mode {
+    padding: var(--spacing-lg);
+    height: 100%;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin: 0;
+    border-radius: var(--radius-lg);
+    text-align: left;
+}
+
+.player-card.vertical-mode.p2-card {
+    text-align: right;
+    border-top-left-radius: var(--radius-lg);
+    border-bottom-left-radius: var(--radius-lg);
+}
+
+.player-name {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.player-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: space-between;
+}
+
+.p2-card .player-info {
+    flex-direction: row-reverse;
+}
+
+/* === HP BAR === */
+.hp-bar-wrapper {
+    height: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.hp-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-danger), #FF6B6B);
+    border-radius: 4px;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hp-text {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-top: var(--spacing-sm);
+}
+
+.hp-text span {
+    color: var(--text-tertiary);
+    font-weight: 400;
+    font-size: 1rem;
+}
+
+.hp-text-mini {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+/* === DAMAGE STATES === */
+.player-card.taking-damage {
+    animation: playerHit 0.6s ease;
+}
+
+.player-card.taking-damage::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 69, 58, 0.3);
+    border-radius: inherit;
+    animation: damageFlash 0.15s ease 4;
+    pointer-events: none;
+}
+
+.player-card.taking-damage .hp-bar-wrapper {
+    animation: hpBarShake 0.5s ease;
+}
+
+.player-card.taking-damage .hp-bar-fill {
+    animation: hpDrain 0.5s ease;
+}
+
+/* === STREAK DISPLAY === */
+.streak-mini {
+    font-size: 0.75rem;
+    font-weight: 800;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 2px 6px;
+    border-radius: 8px;
+}
+
+.streak-display {
+    position: fixed;
+    top: 15%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.streak-emoji {
+    filter: drop-shadow(0 0 10px var(--streak-color));
+}
+
+.streak-name {
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--streak-color);
+    text-shadow: 0 0 20px var(--streak-color);
+}
+
+.streak-count {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.streak-broken {
+    position: fixed;
+    top: 15%;
+    transform: translateX(-50%);
+    font-size: 2rem;
+    font-weight: 700;
+    color: #FF453A;
+    text-shadow: 0 0 20px rgba(255, 69, 58, 0.8);
+    z-index: 1000;
+    pointer-events: none;
+    animation: streakBroken 1.5s ease forwards;
+}
+
+.streak-bonus-popup {
+    display: block;
+    font-size: 1.5rem;
+    color: var(--color-warning);
+    text-shadow: 0 0 15px rgba(255, 159, 10, 0.8);
+    animation: bonusBounce 0.5s ease;
+}
+
+.player-streak-badge {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    background: linear-gradient(135deg, #FF9F0A, #FF6B35);
+    color: white;
+    box-shadow: 0 0 15px rgba(255, 159, 10, 0.5);
+    animation: badgePulse 1s ease infinite alternate;
+}
+
+/* === SPELL BAR === */
+.spell-bar-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: var(--spacing-lg);
+}
+
+.spell-bar {
+    flex: 1;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    padding: 0 var(--spacing-lg);
+    font-family: 'SF Mono', monospace;
+    font-size: 1.5rem;
+    color: var(--color-primary);
+    border-radius: 32px;
+    position: relative;
+    overflow: hidden;
+}
+
+.spell-bar.updating {
+    animation: bgFlash 0.2s ease;
+}
+
+.expression-preview {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.expression-result-preview {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    background: rgba(0, 0, 0, 0.2);
+    padding: 4px 12px;
+    border-radius: 12px;
+    margin-right: 8px;
+}
+
+.expression-card {
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+    text-align: center;
+}
+
+.expression-text {
+    font-size: 2rem;
+    font-weight: 500;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    color: var(--color-primary);
+    min-height: 2.5rem;
+    animation: expressionGlow 1.5s ease-in-out infinite;
+}
+
+.expression-result {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-top: var(--spacing-sm);
+}
+
+.expression-result strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* === CONTROL DECK === */
+.control-deck {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-lg);
+    border: 1px solid var(--glass-border);
+}
+
+.deck-numbers {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.deck-card {
+    aspect-ratio: 0.8;
+    border-radius: var(--radius-md);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    font-size: 2rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.deck-card:hover:not(.used) {
+    transform: translateY(-8px) scale(1.05);
+    background: rgba(255, 255, 255, 0.15);
+    border-color: var(--color-primary);
+    box-shadow: 0 12px 30px rgba(0, 122, 255, 0.3);
+}
+
+.deck-card.used {
+    opacity: 0.2;
+    transform: scale(0.9);
+    filter: grayscale(1);
+    cursor: not-allowed;
+}
+
+.deck-card.waiting {
+    opacity: 0.4;
+    cursor: not-allowed;
+    filter: grayscale(0.5);
+    transform: scale(0.95);
+}
+
+.deck-operators {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+}
+
+.deck-op {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    color: var(--text-secondary);
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.deck-op:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: var(--text-primary);
+    transform: scale(1.1);
+}
+
+.deck-op.paren {
+    color: #BF5AF2;
+    border-color: rgba(191, 90, 242, 0.3);
+}
+
+.deck-op.waiting {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+/* === NUMBER CARDS (legacy grid) === */
+.number-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-sm);
+}
+
+.number-card {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    cursor: pointer;
+    border: 1px solid rgba(0, 122, 255, 0.3);
+    background: rgba(0, 122, 255, 0.1);
+    border-radius: var(--radius-md);
+    transition: all 0.2s ease;
+    animation: cardIdle 3s ease-in-out infinite;
+    animation-delay: calc(var(--card-index, 0) * 0.1s);
+}
+
+.number-card:hover:not(.used) {
+    transform: translateY(-4px);
+    border-color: var(--color-primary);
+    background: rgba(0, 122, 255, 0.2);
+    box-shadow: 0 8px 24px rgba(0, 122, 255, 0.2);
+    animation: cardHover 0.3s ease forwards;
+}
+
+.number-card:active:not(.used) {
+    transform: translateY(-2px);
+    animation: cardSelect 0.15s ease forwards;
+}
+
+.number-card.used {
+    opacity: 0.3;
+    cursor: not-allowed;
+    border-color: var(--glass-border);
+    background: var(--glass-bg);
+}
+
+.number-card.waiting {
+    opacity: 0.4;
+    cursor: not-allowed;
+    filter: grayscale(0.5);
+    transform: scale(0.95);
+}
+
+.number-card.selected {
+    animation: cardSelected 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+/* === OPERATORS (legacy grid) === */
+.operators-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+}
+
+.operator-btn {
+    aspect-ratio: 1.5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    cursor: pointer;
+    border: 1px solid rgba(255, 159, 10, 0.3);
+    background: rgba(255, 159, 10, 0.1);
+    border-radius: var(--radius-md);
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.operator-btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 159, 10, 0.4);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.3s, height 0.3s;
+}
+
+.operator-btn:active::after {
+    width: 200%;
+    height: 200%;
+}
+
+.operator-btn:hover {
+    border-color: var(--color-warning);
+    background: rgba(255, 159, 10, 0.2);
+    transform: translateY(-2px);
+    animation: operatorPulse 0.5s ease;
+}
+
+.operator-btn.parenthesis {
+    border-color: rgba(175, 82, 222, 0.4);
+    background: rgba(175, 82, 222, 0.15);
+    color: #BF5AF2;
+}
+
+.operator-btn.parenthesis:hover {
+    border-color: #BF5AF2;
+    background: rgba(175, 82, 222, 0.3);
+    box-shadow: 0 0 20px rgba(175, 82, 222, 0.3);
+}
+
+.operator-btn.waiting {
+    opacity: 0.4;
+    cursor: not-allowed;
+    filter: grayscale(0.5);
+    transform: scale(0.95);
+}
+
+/* === INPUT HINT === */
+.input-hint {
+    font-size: 0.6rem;
+    color: var(--color-warning);
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    margin-left: auto;
+    padding: 2px 8px;
+    background: rgba(255, 159, 10, 0.15);
+    border-radius: 8px;
+    animation: hintPulse 1.5s ease infinite;
+}
+
+/* === SECTION LABEL === */
+.section-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: var(--spacing-sm);
+    padding-left: var(--spacing-xs);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+/* === DAMAGE POPUP === */
+.damage-popup {
+    position: fixed;
+    pointer-events: none;
+    animation: damageExplode 2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    font-size: 5rem;
+    font-weight: 900;
+    color: var(--color-danger);
+    text-shadow:
+        0 0 20px rgba(255, 69, 58, 1),
+        0 0 40px rgba(255, 69, 58, 0.8),
+        0 0 80px rgba(255, 69, 58, 0.5),
+        0 4px 0 #8B0000;
+    z-index: 1000;
+    letter-spacing: -3px;
+}
+
+.damage-popup::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 150%;
+    height: 150%;
+    background: radial-gradient(circle, rgba(255, 69, 58, 0.3) 0%, transparent 70%);
+    transform: translate(-50%, -50%);
+    animation: damageRing 0.5s ease-out forwards;
+    z-index: -1;
+}
+
+.damage-popup.critical {
+    font-size: 7rem;
+    animation: damageCritical 2.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    background: linear-gradient(45deg, #FFD60A, #FF9F0A, #FF453A, #BF5AF2, #007AFF, #FFD60A);
+    background-size: 400% 400%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 30px rgba(255, 214, 10, 1)) drop-shadow(0 0 60px rgba(255, 159, 10, 0.8));
+}
+
+.damage-popup.critical::before {
+    width: 250%;
+    height: 250%;
+    background: radial-gradient(circle, rgba(255, 214, 10, 0.5) 0%, rgba(255, 159, 10, 0.3) 30%, transparent 70%);
+    animation: criticalRing 1s ease-out forwards;
+}
+
+/* === PARTICLES === */
+.particle {
+    position: fixed;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: particleFly 1s ease-out forwards;
+}
+
+/* === MESSAGE CARD === */
+.message-card {
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-left: 3px solid var(--color-warning);
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    animation: messageSlide 0.3s ease forwards;
+}
+
+/* === HISTORY PANEL === */
+.history-panel {
+    padding: var(--spacing-lg);
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.history-title {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: var(--spacing-md);
+}
+
+.history-empty {
+    font-size: 0.875rem;
+    color: var(--text-tertiary);
+    text-align: center;
+    padding: var(--spacing-xl);
+}
+
+.history-item {
+    padding: var(--spacing-sm);
+    margin-bottom: var(--spacing-xs);
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.03);
+    border-left: 2px solid transparent;
+    animation: slideInLeft 0.3s ease forwards;
+}
+
+.history-item.perfect {
+    border-left-color: var(--color-success);
+}
+
+.history-item.close {
+    border-left-color: var(--color-primary);
+}
+
+.history-item.far {
+    border-left-color: var(--color-warning);
+}
+
+.history-item.miss {
+    border-left-color: var(--color-danger);
+}
+
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    margin-bottom: 4px;
+}
+
+.history-player {
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.history-damage {
+    font-weight: 600;
+}
+
+.history-damage.hit {
+    color: var(--color-success);
+}
+
+.history-damage.miss {
+    color: var(--color-danger);
+}
+
+.history-expr {
+    font-family: 'SF Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+}
+
+.history-details {
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+    margin-top: 4px;
+    opacity: 0.8;
+}
+
+/* === CONFETTI === */
+.confetti-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 999;
+}
+
+.confetti {
+    position: absolute;
+    animation: confettiExplosion 4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    border-radius: 2px;
+}
+
+.confetti:nth-child(odd) {
+    animation-name: confettiSpin;
+}
+
+.confetti:nth-child(3n) {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+}
+
+.confetti:nth-child(5n) {
+    width: 8px;
+    height: 20px;
+}
+
+/* === SCREEN SHAKE === */
+.screen-shake {
+    animation: screenShakeViolent 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+
+.screen-shake::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at center, transparent 40%, rgba(255, 69, 58, 0.2) 100%);
+    animation: impactFlash 0.3s ease-out;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+/* === ATTACKING STATE === */
+.attacking {
+    animation: attackExecute 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}

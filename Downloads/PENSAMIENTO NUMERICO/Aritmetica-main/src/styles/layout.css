@@ -1,0 +1,317 @@
+/* ====================================
+   LAYOUT - Containers, Grid, Arena
+   ==================================== */
+
+/* === CONTAINER === */
+.game-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--spacing-lg);
+    animation: gameStart 0.5s ease forwards;
+}
+
+/* === HEADER === */
+.game-header {
+    text-align: center;
+    padding: var(--spacing-xl) 0;
+    position: relative;
+}
+
+.game-title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+}
+
+.game-subtitle {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-top: var(--spacing-xs);
+    font-weight: 400;
+}
+
+/* === ARENA SECTION === */
+.arena-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-xl);
+    position: relative;
+}
+
+.arena-target {
+    flex-shrink: 0;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.3);
+    border: 4px solid rgba(255, 255, 255, 0.1);
+    animation: floatIdle 6s ease-in-out infinite;
+}
+
+.target-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: var(--spacing-xs);
+}
+
+.target-number {
+    font-size: 4rem;
+    font-weight: 700;
+    color: var(--color-accent);
+    line-height: 1;
+    text-shadow: 0 0 40px rgba(255, 214, 10, 0.3);
+    animation: targetPulse 2s ease-in-out infinite;
+}
+
+/* === DASHBOARD GRID (3 columns) === */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 240px 1fr 240px;
+    gap: var(--spacing-lg);
+    align-items: start;
+    margin-bottom: var(--spacing-xl);
+}
+
+.player-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.center-column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+    position: relative;
+}
+
+/* === PLAYERS ROW (legacy) === */
+.players-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 900px) {
+
+    .dashboard-grid,
+    .dashboard-layout {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .player-column {
+        flex-direction: row;
+    }
+
+    .game-container {
+        padding: var(--spacing-xs);
+    }
+
+    .player-history {
+        display: none;
+    }
+
+    .arena-target-large {
+        width: 140px;
+        height: 140px;
+    }
+
+    .arena-target-large .target-number {
+        font-size: 4rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .game-container {
+        padding: var(--spacing-md);
+    }
+
+    .target-number {
+        font-size: 3rem;
+    }
+
+    .players-row {
+        gap: var(--spacing-sm);
+    }
+}
+
+/* === NEW DASHBOARD 3-COLUMN LAYOUT === */
+.dashboard-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr 280px;
+    gap: var(--spacing-lg);
+    align-items: start;
+    margin-bottom: var(--spacing-lg);
+}
+
+.player-column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.center-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 280px;
+}
+
+/* Enhanced Target */
+.arena-target-large {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(255, 214, 10, 0.15), rgba(255, 159, 10, 0.1));
+    border: 3px solid rgba(255, 214, 10, 0.3);
+    box-shadow:
+        0 0 60px rgba(255, 214, 10, 0.2),
+        inset 0 0 40px rgba(255, 214, 10, 0.1);
+    animation: floatIdle 6s ease-in-out infinite, targetGlow 3s ease-in-out infinite alternate;
+}
+
+.arena-target-large .target-number {
+    font-size: 5rem;
+    font-weight: 800;
+    color: var(--color-accent);
+    text-shadow: 0 0 50px rgba(255, 214, 10, 0.5);
+}
+
+.arena-target-large .target-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: var(--spacing-xs);
+}
+
+@keyframes targetGlow {
+    0% {
+        box-shadow: 0 0 60px rgba(255, 214, 10, 0.2), inset 0 0 40px rgba(255, 214, 10, 0.1);
+    }
+
+    100% {
+        box-shadow: 0 0 80px rgba(255, 214, 10, 0.4), inset 0 0 60px rgba(255, 214, 10, 0.15);
+    }
+}
+
+/* Dashboard Player Card */
+.player-card.dashboard-card {
+    padding: var(--spacing-lg);
+    min-height: 100px;
+}
+
+.player-stats-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: var(--spacing-sm);
+}
+
+.damage-dealt-mini {
+    font-size: 0.8rem;
+    color: var(--color-warning);
+    font-weight: 600;
+}
+
+/* Player History Sidebar */
+.player-history {
+    padding: var(--spacing-md);
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--glass-border);
+}
+
+.player-history.left {
+    border-left: 3px solid var(--color-primary);
+}
+
+.player-history.right {
+    border-right: 3px solid var(--color-danger);
+    text-align: right;
+}
+
+.history-title-mini {
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: var(--spacing-sm);
+}
+
+.history-empty-mini {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    opacity: 0.6;
+    padding: var(--spacing-md) 0;
+}
+
+.history-item-mini {
+    padding: var(--spacing-xs);
+    margin-bottom: var(--spacing-xs);
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.history-item-mini.perfect {
+    border-left: 2px solid var(--color-success);
+}
+
+.history-item-mini.close {
+    border-left: 2px solid var(--color-primary);
+}
+
+.history-item-mini.miss {
+    border-left: 2px solid var(--color-danger);
+}
+
+.player-history.right .history-item-mini {
+    border-left: none;
+    border-right: 2px solid currentColor;
+}
+
+.history-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    margin-bottom: 2px;
+}
+
+.history-round {
+    color: var(--text-tertiary);
+}
+
+.history-dmg.hit {
+    color: var(--color-success);
+    font-weight: 600;
+}
+
+.history-dmg.miss {
+    color: var(--color-danger);
+}
+
+.history-expr-mini {
+    font-family: 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+    opacity: 0.8;
+}
