@@ -40,6 +40,7 @@ export const DIFFICULTY_CONFIG = {
     color: '#34C759',
     // Cartas: números del 1 al 9
     cardRange: { min: 1, max: 9 },
+    cardCount: 4, // 4 cartas numéricas, sin variables
     // Targets: sumas/restas simples (10-30)
     targetRange: { min: 10, max: 30 },
     // Solo suma y resta
@@ -47,6 +48,13 @@ export const DIFFICULTY_CONFIG = {
     operatorSymbols: ['+', '−'],
     // Sin paréntesis
     allowParentheses: false,
+    // Sin variables algebraicas
+    variableConfig: {
+      enabled: false,
+      variables: [],
+      range: { min: 0, max: 0 },
+      bonusMultiplier: 1.0
+    },
     // Precisión más flexible
     accuracyThresholds: {
       perfect: 0,
@@ -69,17 +77,25 @@ export const DIFFICULTY_CONFIG = {
   medium: {
     name: 'Medio',
     emoji: '⚔️',
-    description: 'Todas las operaciones. ¡El verdadero desafío matemático!',
+    description: 'Álgebra básica con variable x. ¡El verdadero desafío matemático!',
     color: '#FF9F0A',
-    // Cartas: números del 1 al 12
-    cardRange: { min: 1, max: 12 },
-    // Targets: operaciones intermedias (20-60)
-    targetRange: { min: 20, max: 60 },
+    // Cartas: números del 2 al 10 (evitando 1 que produce targets muy bajos)
+    cardRange: { min: 2, max: 10 },
+    cardCount: 3, // 3 cartas numéricas + 1 variable
+    // Targets: operaciones intermedias (15-50) - ajustado para balance
+    targetRange: { min: 15, max: 50 },
     // Todas las operaciones
     operators: ['+', '-', '*', '/'],
     operatorSymbols: ['+', '−', '×', '÷'],
     // Paréntesis disponibles
     allowParentheses: true,
+    // Variable x habilitada
+    variableConfig: {
+      enabled: true,
+      variables: ['x'],
+      range: { min: 2, max: 9 },
+      bonusMultiplier: 1.10 // 10% extra de daño por usar variable
+    },
     // Precisión estándar
     accuracyThresholds: {
       perfect: 0,
@@ -102,17 +118,25 @@ export const DIFFICULTY_CONFIG = {
   hard: {
     name: 'Difícil',
     emoji: '💀',
-    description: 'Números grandes, precisión exigente. ¡Solo para maestros!',
+    description: 'Álgebra avanzada con variables x e y. ¡Solo para maestros!',
     color: '#FF453A',
     // Cartas: números del 2 al 20 (incluyendo más grandes)
     cardRange: { min: 2, max: 20 },
-    // Targets: operaciones complejas (50-150)
-    targetRange: { min: 50, max: 150 },
+    cardCount: 3, // 3 cartas numéricas + 2 variables (x, y)
+    // Targets: operaciones complejas (80-200) - ajustado para 2 variables
+    targetRange: { min: 80, max: 200 },
     // Todas las operaciones
     operators: ['+', '-', '*', '/'],
     operatorSymbols: ['+', '−', '×', '÷'],
     // Paréntesis obligatorios para bonus máximo
     allowParentheses: true,
+    // Variables x e y habilitadas
+    variableConfig: {
+      enabled: true,
+      variables: ['x', 'y'],
+      range: { min: 2, max: 9 },
+      bonusMultiplier: 1.10 // 10% extra de daño por usar variable
+    },
     // Precisión estricta
     accuracyThresholds: {
       perfect: 0,
@@ -137,42 +161,173 @@ export const DIFFICULTY_CONFIG = {
 /**
  * Genera cartas según la dificultad seleccionada.
  * 
+ * Para modos medio y difícil, también genera variables algebraicas (x, y).
+ * 
  * @param {string} difficulty - 'easy', 'medium', o 'hard'
- * @returns {number[]} Array de 4 números aleatorios
+ * @returns {Object} { cards: number[], variables: Array<{symbol: string, value: number}>, allCards: Array }
  */
 export function generateCardsByDifficulty(difficulty = 'medium') {
   const config = DIFFICULTY_CONFIG[difficulty] || DIFFICULTY_CONFIG.medium;
   const { min, max } = config.cardRange;
+  const cardCount = config.cardCount || 4;
 
+  // Generar cartas numéricas
   const cards = [];
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < cardCount; i++) {
     cards.push(Math.floor(Math.random() * (max - min + 1)) + min);
   }
-  return cards;
+
+  // Generar variables si están habilitadas
+  const variables = [];
+  if (config.variableConfig?.enabled) {
+    const { variables: varSymbols, range } = config.variableConfig;
+    for (const symbol of varSymbols) {
+      const value = Math.floor(Math.random() * (range.max - range.min + 1)) + range.min;
+      variables.push({ symbol, value });
+    }
+  }
+
+  // allCards combina números y variables para compatibilidad con lógica existente
+  // Los números se mantienen como están, las variables se representan como objetos
+  const allCards = [...cards, ...variables.map(v => ({ type: 'variable', ...v }))];
+
+  return { cards, variables, allCards };
 }
+
+/**
+ * Genera valores para las variables de una ronda.
+ * 
+ * @param {string} difficulty - Nivel de dificultad
+ * @returns {Object} Objeto con los valores de cada variable, ej: { x: 4, y: 7 }
+ */
+export function generateVariableValues(difficulty = 'medium') {
+  const config = DIFFICULTY_CONFIG[difficulty] || DIFFICULTY_CONFIG.medium;
+
+  if (!config.variableConfig?.enabled) {
+    return {};
+  }
+
+  const { variables, range } = config.variableConfig;
+  const values = {};
+
+  for (const symbol of variables) {
+    values[symbol] = Math.floor(Math.random() * (range.max - range.min + 1)) + range.min;
+  }
+
+  return values;
+}
+
+/**
+ * Evalúa una expresión matemática reemplazando variables con sus valores.
+ * Soporta multiplicación implícita algebraica: "3x" = "3*x", "(2+1)x" = "(2+1)*x"
+ * 
+ * @param {string} expression - La expresión (ej: "3x + 5" o "2x + 3")
+ * @param {Object} variableValues - Valores de las variables (ej: { x: 4 })
+ * @returns {number|null} El resultado numérico o null si hay error
+ */
+export function evaluateExpressionWithVariables(expression, variableValues = {}) {
+  try {
+    let evaluableExpr = expression;
+
+    for (const [symbol, value] of Object.entries(variableValues)) {
+      // 1. Reemplazar patrones "número + variable" con multiplicación implícita: "3x" → "3*valor"
+      evaluableExpr = evaluableExpr.replace(
+        new RegExp(`(\\d)${symbol}`, 'g'),
+        `$1*${value}`
+      );
+
+      // 2. Reemplazar patrones ")x" con ")*valor" (paréntesis seguido de variable)
+      evaluableExpr = evaluableExpr.replace(
+        new RegExp(`\\)${symbol}`, 'g'),
+        `)*${value}`
+      );
+
+      // 3. Reemplazar la variable sola (después de operador o al inicio)
+      evaluableExpr = evaluableExpr.replace(
+        new RegExp(symbol, 'g'),
+        value.toString()
+      );
+    }
+
+    const result = eval(evaluableExpr);
+    return typeof result === 'number' && !isNaN(result) ? result : null;
+  } catch {
+    return null;
+  }
+}
+
+
+/**
+ * Detecta si una expresión contiene variables algebraicas.
+ * 
+ * @param {string} expression - La expresión a analizar
+ * @returns {Object} { hasVariables: boolean, variablesUsed: string[] }
+ */
+export function detectVariablesInExpression(expression) {
+  const variablePattern = /[xy]/g;
+  const matches = expression.match(variablePattern) || [];
+  const uniqueVars = [...new Set(matches)];
+
+  return {
+    hasVariables: uniqueVars.length > 0,
+    variablesUsed: uniqueVars
+  };
+}
+
+/**
+ * Calcula el bonus por usar variables algebraicas.
+ * 
+ * @param {string} expression - La expresión del jugador
+ * @param {number} baseDamage - Daño base antes del bonus
+ * @param {string} difficulty - Nivel de dificultad
+ * @returns {Object} { bonus: number, bonusPercent: number, variablesUsed: string[] }
+ */
+export function calculateVariableBonus(expression, baseDamage, difficulty = 'medium') {
+  const config = DIFFICULTY_CONFIG[difficulty] || DIFFICULTY_CONFIG.medium;
+  const { hasVariables, variablesUsed } = detectVariablesInExpression(expression);
+
+  if (!hasVariables || !config.variableConfig?.enabled) {
+    return { bonus: 0, bonusPercent: 0, variablesUsed: [] };
+  }
+
+  const multiplier = config.variableConfig.bonusMultiplier || 1.1;
+  const bonusPercent = Math.round((multiplier - 1) * 100);
+  const bonus = Math.floor(baseDamage * (multiplier - 1));
+
+  return {
+    bonus,
+    bonusPercent,
+    variablesUsed
+  };
+}
+
 
 /**
  * Genera un target (número objetivo) GARANTIZADO de ser alcanzable.
  * 
  * Utiliza un algoritmo constructivo (brute-force inteligente) para explorar
- * el espacio de soluciones posibles con las cartas dadas.
+ * el espacio de soluciones posibles con las cartas y variables dadas.
  * 
  * Algoritmo:
- * 1. Toma las 4 cartas generadas.
+ * 1. Toma las cartas numéricas y los valores de las variables.
  * 2. Genera recursivamente todas las combinaciones posibles de operaciones (+, -, *, /).
  * 3. Almacena todos los resultados enteros positivos en un Set.
  * 4. Filtra los resultados que caen dentro del rango de dificultad (min-max).
  * 5. Selecciona uno aleatoriamente (con preferencia a la complejidad si es posible).
  * 
  * @param {string} difficulty - Nivel de dificultad ('easy', 'medium', 'hard')
- * @param {number[]} cards - Array de números disponibles (las cartas)
- * @returns {number} Un número objetivo matemáticamente posible de alcanzar con las cartas
+ * @param {number[]} cards - Array de números disponibles (las cartas numéricas)
+ * @param {Object} variableValues - Objeto con valores de variables, ej: { x: 4, y: 7 }
+ * @returns {number} Un número objetivo matemáticamente posible de alcanzar con las cartas/variables
  */
-export function generateTargetByDifficulty(difficulty = 'medium', cards) {
+export function generateTargetByDifficulty(difficulty = 'medium', cards, variableValues = {}) {
   const config = DIFFICULTY_CONFIG[difficulty] || DIFFICULTY_CONFIG.medium;
   const { min, max } = config.targetRange;
 
-  // 1. Calcular todos los resultados posibles con estas cartas
+  // Combinar cartas numéricas con valores de variables
+  const allNumbers = [...cards, ...Object.values(variableValues)];
+
+  // 1. Calcular todos los resultados posibles con estas cartas/variables
   const possibleResults = new Set();
 
   // Helper recursivo para permutar y operar
@@ -219,8 +374,8 @@ export function generateTargetByDifficulty(difficulty = 'medium', cards) {
     }
   }
 
-  // Iniciar exploración (limitada para rendimiento si fuera necesario, pero 4 cartas es rápido)
-  explore(cards);
+  // Iniciar exploración con todos los números disponibles
+  explore(allNumbers);
 
   // 2. Filtrar resultados que estén dentro del rango de dificultad deseado
   // Se convierte a Array para elegir uno random
@@ -228,20 +383,37 @@ export function generateTargetByDifficulty(difficulty = 'medium', cards) {
     val >= min && val <= max && Number.isInteger(val)
   );
 
-  // 3. Fallback inteligente
+  // 3. Seleccionar un target válido o usar fallback inteligente
   if (validTargets.length > 0) {
     // Dar preferencia a números más complejos/interesantes si hay muchos
     return validTargets[Math.floor(Math.random() * validTargets.length)];
   } else {
-    // Si no encontramos nada en el rango (raro), devolvemos el resultado más cercano al rango
-    // o simplemente la suma de todo para asegurar que se pueda hacer "algo"
-    const sum = cards.reduce((a, b) => a + b, 0);
-    return sum;
+    // Fallback mejorado: encontrar el resultado más cercano al rango deseado
+    const allResults = Array.from(possibleResults).filter(val => Number.isInteger(val) && val > 0);
+
+    if (allResults.length > 0) {
+      // Ordenar por cercanía al rango [min, max]
+      allResults.sort((a, b) => {
+        const distA = a < min ? min - a : (a > max ? a - max : 0);
+        const distB = b < min ? min - b : (b > max ? b - max : 0);
+        return distA - distB;
+      });
+
+      // Tomar el más cercano, pero clampear al rango si está cerca
+      const closest = allResults[0];
+      return Math.max(min, Math.min(max, closest));
+    }
+
+    // Último recurso: suma clampeada al rango
+    const sum = allNumbers.reduce((a, b) => a + b, 0);
+    return Math.max(min, Math.min(max, sum));
   }
 }
 
+
+
 /**
- * Encuentra una solución exacta para el target dado utilizando las cartas disponibles.
+ * Encuentra una solución exacta para el target dado utilizando las cartas y variables disponibles.
  * Útil para la función de "Rendirse" (mostrar solución) o para la IA.
  * 
  * Utiliza un enfoque similar a `generateTarget` pero optimizado para detenerse
@@ -250,11 +422,12 @@ export function generateTargetByDifficulty(difficulty = 'medium', cards) {
  * Maneja la precedencia de operadores para generar strings con paréntesis correctos.
  * 
  * @param {number} target - El número objetivo a alcanzar
- * @param {number[]} cards - Las cartas disponibles
+ * @param {number[]} cards - Las cartas numéricas disponibles
  * @param {string} difficulty - Nivel de dificultad (afecta operaciones permitidas)
- * @returns {string|null} La expresión matemática solución (ej: "4 * (5 + 2)") o mensaje de error.
+ * @param {Object} variableValues - Objeto con valores de variables, ej: { x: 4, y: 7 }
+ * @returns {string|null} La expresión matemática solución (ej: "4 * (x + 2)") o mensaje de error.
  */
-export function findSolution(target, cards, difficulty = 'medium') {
+export function findSolution(target, cards, difficulty = 'medium', variableValues = {}) {
   // Estructura para almacenar valor y expresión
   // { value: number, expr: string, precedence: number }
   // Precedence: 2 para * /, 1 para + -
@@ -338,12 +511,19 @@ export function findSolution(target, cards, difficulty = 'medium') {
     }
   }
 
-  // Convertir cartas number a objetos
+  // Convertir cartas numéricas a objetos
   const initialItems = cards.map(c => ({ value: c, expr: c.toString(), precedence: 3 })); // 3 = atom
+
+  // Agregar variables con su símbolo como expresión (pero su valor numérico para cálculos)
+  for (const [symbol, value] of Object.entries(variableValues)) {
+    initialItems.push({ value, expr: symbol, precedence: 3 }); // 3 = atom
+  }
+
   explore(initialItems);
 
   return result || "Sin solución encontrada??";
 }
+
 
 /**
  * Calcula el daño final y las estadísticas de la jugada.

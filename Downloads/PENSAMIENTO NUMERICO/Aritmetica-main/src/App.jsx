@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { calculateNormalizedDamage, getOperatorsFromExpression, hasExactDivisionInExpression, calculateStreakBonus, validateParentheses, calculateParenthesesBonus, DIFFICULTY_CONFIG, generateCardsByDifficulty, generateTargetByDifficulty, findSolution } from './utils/gameLogic';
+import { calculateNormalizedDamage, getOperatorsFromExpression, hasExactDivisionInExpression, calculateStreakBonus, validateParentheses, calculateParenthesesBonus, DIFFICULTY_CONFIG, generateCardsByDifficulty, generateTargetByDifficulty, findSolution, evaluateExpressionWithVariables, calculateVariableBonus, detectVariablesInExpression } from './utils/gameLogic';
+
 import { soundManager } from './utils/SoundManager';
 import './styles/index.css';
 
@@ -62,14 +63,19 @@ const ArithmeticPvPGame = () => {
 
   // Turn State
   const [target, setTarget] = useState(0);        // Número a alcanzar
-  const [cards1, setCards1] = useState([]);       // Cartas J1
-  const [cards2, setCards2] = useState([]);       // Cartas J2
+  const [cards1, setCards1] = useState([]);       // Cartas numéricas J1
+  const [cards2, setCards2] = useState([]);       // Cartas numéricas J2
+  const [variables1, setVariables1] = useState([]); // Variables algebraicas J1 (ej: [{symbol: 'x', value: 4}])
+  const [variables2, setVariables2] = useState([]); // Variables algebraicas J2
+  const [variableValues, setVariableValues] = useState({}); // Valores actuales de variables (ej: {x: 4, y: 7})
   const [expression, setExpression] = useState(''); // Expresión actual construida
-  const [usedCards, setUsedCards] = useState([]);   // Índices de cartas usadas
+  const [usedCards, setUsedCards] = useState([]);   // Índices de cartas numéricas usadas
+  const [usedVariables, setUsedVariables] = useState([]); // Símbolos de variables usadas (ej: ['x'])
   const [message, setMessage] = useState('');       // Mensajes de feedback (error/éxito)
   const [turn, setTurn] = useState(1);
   const [winner, setWinner] = useState(null);
   const [history, setHistory] = useState([]);       // Historial completo de jugadas
+
 
   // Streak states
   const [player1Streak, setPlayer1Streak] = useState(0);
@@ -127,6 +133,7 @@ const ArithmeticPvPGame = () => {
 
   // Helper getters
   const currentCards = currentPlayer === 1 ? cards1 : cards2;
+  const currentVariables = currentPlayer === 1 ? variables1 : variables2;
   const currentPlayerName = currentPlayer === 1 ? player1.name : player2.name;
 
   const handleExitGame = () => {
@@ -136,9 +143,11 @@ const ArithmeticPvPGame = () => {
 
   const confirmSurrender = () => {
     setShowSurrenderConfirmation(false);
-    const solution = findSolution(target, currentCards, difficulty);
+    // Pasar variableValues a findSolution para mostrar solución con variables
+    const solution = findSolution(target, currentCards, difficulty, variableValues);
     setSurrenderSolution(solution);
   };
+
 
   const closeSolutionAndNextTurn = () => {
     setSurrenderSolution(null);
@@ -149,10 +158,21 @@ const ArithmeticPvPGame = () => {
     setTakingDamage(currentPlayer);
     setDamagePopup({ damage: -damage, type: 'pro', x: window.innerWidth / 2, y: window.innerHeight / 2 });
 
+    // Sonido de daño al rendirse
+    soundManager.playDamage();
+
+    // Calcular nuevo HP y verificar si muere
+    let newHp;
+    let playerDied = false;
+
     if (currentPlayer === 1) {
-      setPlayer1(prev => ({ ...prev, hp: Math.max(0, prev.hp - damage) }));
+      newHp = Math.max(0, player1.hp - damage);
+      setPlayer1(prev => ({ ...prev, hp: newHp }));
+      playerDied = newHp <= 0;
     } else {
-      setPlayer2(prev => ({ ...prev, hp: Math.max(0, prev.hp - damage) }));
+      newHp = Math.max(0, player2.hp - damage);
+      setPlayer2(prev => ({ ...prev, hp: newHp }));
+      playerDied = newHp <= 0;
     }
 
     setScreenShake(true);
@@ -171,25 +191,53 @@ const ArithmeticPvPGame = () => {
     setTimeout(() => {
       setTakingDamage(null);
       setDamagePopup(null);
-      nextTurn();
+
+      // Verificar si el jugador murió al rendirse
+      if (playerDied) {
+        // El oponente gana - replicar comportamiento de victoria normal
+        const winnerName = currentPlayer === 1 ? player2.name : player1.name;
+        setWinner(winnerName);
+        soundManager.playWin();
+        setShowConfetti(true);
+        setTimeout(() => {
+          setShowConfetti(false);
+          setGameState('gameover');
+        }, 2000);
+      } else {
+        nextTurn();
+      }
     }, 1500);
   };
+
+
 
   const startGame = (p1Name = 'Jugador 1', p2Name = 'Jugador 2') => {
     soundManager.playPop();
     const config = DIFFICULTY_CONFIG[difficulty];
     const hp = config.playerHp;
-    const newCards1 = generateCardsByDifficulty(difficulty);
-    const newCards2 = generateCardsByDifficulty(difficulty);
+
+    // Generar cartas y variables para ambos jugadores
+    const player1Data = generateCardsByDifficulty(difficulty);
+    const player2Data = generateCardsByDifficulty(difficulty);
+
+    // Extraer valores de variables para el target (usamos las del jugador 1 inicialmente)
+    const varValues = {};
+    for (const v of player1Data.variables) {
+      varValues[v.symbol] = v.value;
+    }
 
     setPlayer1({ name: p1Name, hp: hp, maxHp: hp });
     setPlayer2({ name: p2Name, hp: hp, maxHp: hp });
-    setCards1(newCards1);
-    setCards2(newCards2);
-    setTarget(generateTargetByDifficulty(difficulty, newCards1));
+    setCards1(player1Data.cards);
+    setCards2(player2Data.cards);
+    setVariables1(player1Data.variables);
+    setVariables2(player2Data.variables);
+    setVariableValues(varValues);
+    setTarget(generateTargetByDifficulty(difficulty, player1Data.cards, varValues));
     setCurrentPlayer(1);
     setExpression('');
     setUsedCards([]);
+    setUsedVariables([]);
     setMessage('');
     setTurn(1);
     setWinner(null);
@@ -200,11 +248,13 @@ const ArithmeticPvPGame = () => {
     setGameState('playing');
   };
 
+
   // Expression construction logic
   const getLastTokenType = (expr) => {
     if (!expr || expr.length === 0) return 'empty';
     const lastChar = expr[expr.length - 1];
     if (/\d/.test(lastChar)) return 'number';
+    if (['x', 'y'].includes(lastChar)) return 'variable'; // Variables se comportan como números
     if (['+', '-', '*', '/'].includes(lastChar)) return 'operator';
     if (lastChar === '(') return 'openParen';
     if (lastChar === ')') return 'closeParen';
@@ -212,12 +262,17 @@ const ArithmeticPvPGame = () => {
   };
 
   const lastTokenType = getLastTokenType(expression);
+  // Números se pueden añadir después de operador, paréntesis abierto, o al inicio
   const canAddNumber = lastTokenType === 'empty' || lastTokenType === 'operator' || lastTokenType === 'openParen';
-  const canAddOperator = lastTokenType === 'number' || lastTokenType === 'closeParen';
+  // Variables se pueden añadir donde van números Y también después de un número (multiplicación implícita: 2x)
+  // También después de paréntesis de cierre: (3+1)x
+  const canAddVariable = canAddNumber || lastTokenType === 'number' || lastTokenType === 'closeParen';
+  const canAddOperator = lastTokenType === 'number' || lastTokenType === 'variable' || lastTokenType === 'closeParen';
   const canAddOpenParen = lastTokenType === 'empty' || lastTokenType === 'operator' || lastTokenType === 'openParen';
   const openParenCount = (expression.match(/\(/g) || []).length;
   const closeParenCount = (expression.match(/\)/g) || []).length;
-  const canAddCloseParen = (lastTokenType === 'number' || lastTokenType === 'closeParen') && openParenCount > closeParenCount;
+  const canAddCloseParen = (lastTokenType === 'number' || lastTokenType === 'variable' || lastTokenType === 'closeParen') && openParenCount > closeParenCount;
+
 
   const addToExpression = (value, cardIndex) => {
     soundManager.playSelect();
@@ -226,6 +281,14 @@ const ArithmeticPvPGame = () => {
 
     setExpression(prev => prev + value);
     setUsedCards(prev => [...prev, cardIndex]);
+  };
+
+  // Nueva función para agregar variables a la expresión
+  const addVariableToExpression = (symbol) => {
+    if (!canAddVariable) return;
+    soundManager.playSelect();
+    setExpression(prev => prev + symbol);
+    setUsedVariables(prev => [...prev, symbol]);
   };
 
   const addOperator = (op) => {
@@ -249,9 +312,16 @@ const ArithmeticPvPGame = () => {
   const clearExpression = () => {
     setExpression('');
     setUsedCards([]);
+    setUsedVariables([]);
   };
 
+  // Evalúa la expresión reemplazando variables con sus valores
   const evaluateExpression = (expr) => {
+    // Si hay variables en la dificultad, usar evaluación con variables
+    if (difficultyConfig?.variableConfig?.enabled) {
+      return evaluateExpressionWithVariables(expr, variableValues);
+    }
+    // Fallback para modo fácil sin variables
     try {
       const result = eval(expr);
       return typeof result === 'number' && !isNaN(result) ? result : null;
@@ -259,6 +329,7 @@ const ArithmeticPvPGame = () => {
       return null;
     }
   };
+
 
   /**
    * Procesa el ataque del jugador actual.
@@ -300,7 +371,12 @@ const ArithmeticPvPGame = () => {
       return;
     }
     const parenBonus = calculateParenthesesBonus(expression);
-    const totalDamage = damageResult.miss ? 0 : damageResult.damage + streakResult.bonus + parenBonus.bonus;
+
+    // Calcular bonus por uso de variables algebraicas (10% extra)
+    const variableBonusResult = calculateVariableBonus(expression, damageResult.damage, difficulty);
+
+    // Daño total incluye: base + streak + paréntesis + variables
+    const totalDamage = damageResult.miss ? 0 : damageResult.damage + streakResult.bonus + parenBonus.bonus + variableBonusResult.bonus;
 
     setHistory(prev => [{
       turn: turn,
@@ -313,7 +389,9 @@ const ArithmeticPvPGame = () => {
       details: damageResult.bonusBreakdown.join(' | '),
       isMasterPlay: damageResult.isMasterPlay,
       streak: streakResult.newStreak,
-      streakBonus: streakResult.bonus
+      streakBonus: streakResult.bonus,
+      variableBonus: variableBonusResult.bonus,
+      variablesUsed: variableBonusResult.variablesUsed
     }, ...prev]);
 
     setTimeout(() => {
@@ -339,13 +417,16 @@ const ArithmeticPvPGame = () => {
         damage: totalDamage,
         isCritical: damageResult.isMasterPlay || streakResult.tier.intensity >= 3,
         targetPlayer: currentPlayer === 1 ? 2 : 1,
-        streakBonus: streakResult.bonus
+        streakBonus: streakResult.bonus,
+        variableBonus: variableBonusResult.bonus
       });
 
       // Spawn particles at target location (approximate)
       const targetX = currentPlayer === 1 ? window.innerWidth * 0.75 : window.innerWidth * 0.25;
       const targetY = window.innerHeight * 0.3;
-      spawnParticles(targetX, targetY, 15, damageResult.isMasterPlay ? '#FFD60A' : '#FF453A');
+      // Partículas doradas extra si usó variables
+      const particleColor = variableBonusResult.bonus > 0 ? '#BF5AF2' : (damageResult.isMasterPlay ? '#FFD60A' : '#FF453A');
+      spawnParticles(targetX, targetY, 15, particleColor);
 
       // Sound Effects based on outcome
       if (damageResult.isMasterPlay || streakResult.tier.intensity >= 3) {
@@ -368,7 +449,9 @@ const ArithmeticPvPGame = () => {
       const masterPlayMsg = damageResult.isMasterPlay ? ' 🌟 JUGADA MAESTRA!' : '';
       const streakMsg = streakResult.bonus > 0 ? ` ${streakResult.tier.emoji} +${streakResult.bonus} racha!` : '';
       const parenMsg = parenBonus.bonus > 0 ? ` 🧠 +${parenBonus.bonus} paréntesis!` : '';
-      const attackMsg = `⚔️ ${currentPlayerName} ataca con ${totalDamage} de daño!${masterPlayMsg}${streakMsg}${parenMsg}`;
+      const varMsg = variableBonusResult.bonus > 0 ? ` 📐 +${variableBonusResult.bonus} álgebra!` : '';
+      const attackMsg = `⚔️ ${currentPlayerName} ataca con ${totalDamage} de daño!${masterPlayMsg}${streakMsg}${parenMsg}${varMsg}`;
+
 
       if (currentPlayer === 1) {
         const newHp = Math.max(0, player2.hp - totalDamage);
@@ -407,22 +490,36 @@ const ArithmeticPvPGame = () => {
     setTimeout(() => {
       setGameState('transition');
       let nextPlayer = currentPlayer === 1 ? 2 : 1;
-      let newCards = generateCardsByDifficulty(difficulty);
+
+      // Generar nuevas cartas y variables para el siguiente jugador
+      const newPlayerData = generateCardsByDifficulty(difficulty);
+
+      // Extraer valores de variables para el target
+      const varValues = {};
+      for (const v of newPlayerData.variables) {
+        varValues[v.symbol] = v.value;
+      }
+
       setCurrentPlayer(nextPlayer);
+      setVariableValues(varValues);
 
       if (nextPlayer === 1) {
-        setCards1(newCards);
+        setCards1(newPlayerData.cards);
+        setVariables1(newPlayerData.variables);
         setTurn(prev => prev + 1);
-        setTarget(generateTargetByDifficulty(difficulty, newCards));
+        setTarget(generateTargetByDifficulty(difficulty, newPlayerData.cards, varValues));
       } else {
-        setCards2(newCards);
-        setTarget(generateTargetByDifficulty(difficulty, newCards));
+        setCards2(newPlayerData.cards);
+        setVariables2(newPlayerData.variables);
+        setTarget(generateTargetByDifficulty(difficulty, newPlayerData.cards, varValues));
       }
       setExpression('');
       setUsedCards([]);
+      setUsedVariables([]);
       setMessage('');
     }, 2000);
   };
+
 
   // --- RENDER ---
   if (gameState === 'menu') {
@@ -611,11 +708,26 @@ const ArithmeticPvPGame = () => {
 
           {/* CENTER COLUMN - Target */}
           <div className="center-column">
+            {/* Variables display - encima del target */}
+            {Object.keys(variableValues).length > 0 && (
+              <div className="variable-values-display">
+                {Object.entries(variableValues).map(([symbol, value]) => (
+                  <span key={symbol} className="variable-badge">
+                    <span className="var-symbol">{symbol}</span>
+                    <span className="var-equals">=</span>
+                    <span className="var-value">{value}</span>
+                  </span>
+                ))}
+              </div>
+            )}
+            {/* Target bubble */}
             <div className="arena-target-large liquid-glass">
               <span className="target-label">Target</span>
               <span className="target-number">{target}</span>
             </div>
           </div>
+
+
 
           {/* RIGHT COLUMN - Player 2 */}
           <div className="player-column">
@@ -652,15 +764,20 @@ const ArithmeticPvPGame = () => {
         <ControlDeck
           cards={currentCards}
           usedCards={usedCards}
+          variables={currentVariables}
+          usedVariables={usedVariables}
           difficultyConfig={difficultyConfig}
           canAddNumber={canAddNumber}
+          canAddVariable={canAddVariable}
           canAddOperator={canAddOperator}
           canAddOpenParen={canAddOpenParen}
           canAddCloseParen={canAddCloseParen}
           onAddNumber={addToExpression}
+          onAddVariable={addVariableToExpression}
           onAddOperator={addOperator}
           onAddParenthesis={addParenthesis}
         />
+
 
         {/* SYSTEM MESSAGES */}
         {message && (

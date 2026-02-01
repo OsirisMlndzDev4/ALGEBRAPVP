@@ -737,3 +737,147 @@
 .attacking {
     animation: attackExecute 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
 }
+
+/* === VARIABLE CARDS (Algebraic Variables) === */
+.deck-card.variable-card {
+    background: linear-gradient(145deg, rgba(191, 90, 242, 0.3), rgba(255, 159, 10, 0.2));
+    border: 2px solid rgba(191, 90, 242, 0.5);
+    flex-direction: column;
+    gap: 2px;
+    position: relative;
+    overflow: hidden;
+}
+
+.deck-card.variable-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(45deg,
+            transparent 30%,
+            rgba(255, 255, 255, 0.1) 50%,
+            transparent 70%);
+    animation: variableShimmer 3s ease-in-out infinite;
+}
+
+.deck-card.variable-card:hover:not(.used) {
+    transform: translateY(-8px) scale(1.05);
+    background: linear-gradient(145deg, rgba(191, 90, 242, 0.4), rgba(255, 159, 10, 0.3));
+    border-color: #BF5AF2;
+    box-shadow:
+        0 12px 30px rgba(191, 90, 242, 0.4),
+        0 0 20px rgba(191, 90, 242, 0.3);
+}
+
+.deck-card.variable-card .variable-symbol {
+    font-size: 1.8rem;
+    font-weight: 700;
+    font-style: italic;
+    background: linear-gradient(135deg, #BF5AF2, #FF9F0A);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
+}
+
+.deck-card.variable-card .variable-value {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    opacity: 0.8;
+}
+
+@keyframes variableShimmer {
+
+    0%,
+    100% {
+        transform: translateX(-100%);
+    }
+
+    50% {
+        transform: translateX(100%);
+    }
+}
+
+/* === VARIABLE VALUES DISPLAY (above target) === */
+.variable-values-display {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.variable-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    border-radius: 24px;
+    font-size: 1.25rem;
+    font-weight: 600;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    background: linear-gradient(135deg, rgba(191, 90, 242, 0.25), rgba(191, 90, 242, 0.1));
+    border: 2px solid rgba(191, 90, 242, 0.6);
+    backdrop-filter: blur(10px);
+    animation: variablePulse 2s ease-in-out infinite alternate;
+}
+
+.variable-badge .var-symbol {
+    font-size: 1.5rem;
+    font-weight: 700;
+    font-style: italic;
+    color: #BF5AF2;
+    text-shadow: 0 0 15px rgba(191, 90, 242, 0.8);
+}
+
+.variable-badge .var-equals {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.variable-badge .var-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #FFFFFF;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+/* Segunda variable (y) con estilo diferente */
+.variable-badge:nth-child(2) {
+    background: linear-gradient(135deg, rgba(255, 159, 10, 0.25), rgba(255, 159, 10, 0.1));
+    border-color: rgba(255, 159, 10, 0.6);
+    animation-delay: 0.5s;
+}
+
+.variable-badge:nth-child(2) .var-symbol {
+    color: #FF9F0A;
+    text-shadow: 0 0 15px rgba(255, 159, 10, 0.8);
+}
+
+@keyframes variablePulse {
+    0% {
+        box-shadow: 0 0 10px rgba(191, 90, 242, 0.2);
+        transform: scale(1);
+    }
+
+    100% {
+        box-shadow: 0 0 20px rgba(191, 90, 242, 0.4), 0 0 40px rgba(191, 90, 242, 0.2);
+        transform: scale(1.02);
+    }
+}
+
+
+/* Adjust deck grid for 4+ cards (3 numbers + 1-2 variables) */
+.deck-numbers {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+    margin-bottom: var(--spacing-lg);
+}
+
+.deck-numbers .deck-card {
+    width: 80px;
+    min-width: 70px;
+    aspect-ratio: 0.8;
+}

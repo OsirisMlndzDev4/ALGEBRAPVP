@@ -98,9 +98,14 @@ const DemoScreen = ({ difficulty: initialDifficulty = 'medium', onExit }) => {
         setReasoning('');
         setIsPlaying(false);
 
-        const initialCards = generateCardsByDifficulty(gameDifficulty);
-        setCards(initialCards);
-        setTarget(generateTargetByDifficulty(gameDifficulty, initialCards));
+        const initialData = generateCardsByDifficulty(gameDifficulty);
+        // Extraer valores de variables para el target
+        const varValues = {};
+        for (const v of initialData.variables) {
+            varValues[v.symbol] = v.value;
+        }
+        setCards(initialData.cards);
+        setTarget(generateTargetByDifficulty(gameDifficulty, initialData.cards, varValues));
         setCommentary('🎮 ¡Pulsa INICIAR para comenzar la demo!');
     }, [gameDifficulty, config.playerHp]);
 
@@ -253,9 +258,14 @@ const DemoScreen = ({ difficulty: initialDifficulty = 'medium', onExit }) => {
             // Next turn after delay
             setTimeout(() => {
                 if (!winner) {
-                    const newCards = generateCardsByDifficulty(gameDifficulty);
-                    setCards(newCards);
-                    setTarget(generateTargetByDifficulty(gameDifficulty, newCards));
+                    const newData = generateCardsByDifficulty(gameDifficulty);
+                    // Extraer valores de variables para el target
+                    const varValues = {};
+                    for (const v of newData.variables) {
+                        varValues[v.symbol] = v.value;
+                    }
+                    setCards(newData.cards);
+                    setTarget(generateTargetByDifficulty(gameDifficulty, newData.cards, varValues));
                     setCurrentPlay(null);
 
                     if (currentPlayer === 1) {
