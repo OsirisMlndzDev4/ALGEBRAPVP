@@ -1222,3 +1222,458 @@
         width: 150px;
     }
 }
+
+/* ====================================
+   MODE SELECTION - Singleplayer Config
+   ==================================== */
+
+.sp-mode-select {
+    max-width: 700px;
+}
+
+.sp-modes-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+}
+
+.sp-mode-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 2px solid var(--mode-color, var(--glass-border));
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.sp-mode-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3),
+        0 0 20px color-mix(in srgb, var(--mode-color) 30%, transparent);
+}
+
+.sp-mode-card .mode-emoji {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: var(--spacing-sm);
+}
+
+.sp-mode-card h3 {
+    color: var(--mode-color, var(--text-primary));
+    margin: 0 0 var(--spacing-xs);
+    font-size: 1.25rem;
+}
+
+.sp-mode-card p {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin: 0 0 var(--spacing-md);
+}
+
+.mode-preview {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-xs);
+}
+
+.preview-badge {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+}
+
+/* ====================================
+   VENN SORTER MACHINE
+   ==================================== */
+
+.venn-round {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-lg);
+    padding: var(--spacing-md);
+}
+
+/* Intro Screen */
+.venn-intro {
+    text-align: center;
+    padding: var(--spacing-2xl);
+}
+
+.venn-intro-emoji {
+    font-size: 4rem;
+    display: block;
+    margin-bottom: var(--spacing-md);
+}
+
+.venn-intro h2 {
+    color: var(--text-primary);
+    margin: 0 0 var(--spacing-sm);
+}
+
+.venn-intro p {
+    color: var(--text-secondary);
+    margin: 0 0 var(--spacing-xl);
+}
+
+/* Result Screen */
+.venn-result {
+    text-align: center;
+    padding: var(--spacing-2xl);
+    border-radius: var(--radius-lg);
+    min-width: 300px;
+}
+
+.venn-result.success {
+    background: rgba(52, 199, 89, 0.1);
+    border: 2px solid var(--color-success);
+}
+
+.venn-result.fail {
+    background: rgba(255, 69, 58, 0.1);
+    border: 2px solid var(--color-danger);
+}
+
+.venn-result-emoji {
+    font-size: 4rem;
+    display: block;
+    margin-bottom: var(--spacing-md);
+}
+
+.venn-result h2 {
+    color: var(--text-primary);
+    margin: 0 0 var(--spacing-md);
+}
+
+.venn-result-score {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: var(--spacing-sm);
+}
+
+.venn-result-score .score-big {
+    color: var(--color-success);
+}
+
+.venn-result-score .score-sep {
+    color: var(--text-tertiary);
+    margin: 0 var(--spacing-xs);
+}
+
+.venn-result-score .score-total {
+    color: var(--text-secondary);
+}
+
+.venn-result-percentage {
+    color: var(--text-secondary);
+    margin: 0 0 var(--spacing-xl);
+}
+
+/* Header con condiciones */
+.venn-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 600px;
+    gap: var(--spacing-md);
+}
+
+.venn-condition {
+    background: rgba(0, 0, 0, 0.3);
+    border: 2px solid var(--cond-color, var(--glass-border));
+    border-radius: var(--radius-md);
+    padding: var(--spacing-sm) var(--spacing-md);
+    text-align: center;
+    min-width: 120px;
+}
+
+.venn-condition .cond-label {
+    display: inline;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--cond-color, var(--text-primary));
+    margin-right: 4px;
+}
+
+.venn-condition .cond-notation {
+    display: block;
+    font-family: 'SF Mono', 'Consolas', monospace;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    margin-top: 4px;
+    letter-spacing: 0.02em;
+}
+
+.venn-score-display {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.venn-score-display .divider {
+    color: var(--text-tertiary);
+    margin: 0 4px;
+}
+
+/* Conveyor Belt */
+.conveyor-belt {
+    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+    border: 2px solid #30475e;
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    text-align: center;
+    min-width: 300px;
+    box-shadow: inset 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.conveyor-label {
+    font-size: 0.8rem;
+    color: #f39c12;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: var(--spacing-md);
+}
+
+.draggable-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 50%;
+    font-size: 2rem;
+    font-weight: 800;
+    color: white;
+    cursor: grab;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.5);
+    user-select: none;
+    touch-action: none;
+}
+
+.draggable-number:active {
+    cursor: grabbing;
+}
+
+.draggable-number.error-shake {
+    animation: shake 0.5s ease;
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    20% {
+        transform: translateX(-10px);
+    }
+
+    40% {
+        transform: translateX(10px);
+    }
+
+    60% {
+        transform: translateX(-10px);
+    }
+
+    80% {
+        transform: translateX(10px);
+    }
+}
+
+.conveyor-progress {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: var(--spacing-md);
+}
+
+.progress-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.progress-dot.current {
+    background: #667eea;
+    box-shadow: 0 0 10px #667eea;
+}
+
+.progress-dot.done {
+    background: var(--color-success);
+}
+
+/* Venn Diagram */
+.venn-diagram {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    height: 300px;
+}
+
+/* Zona exterior (complemento) */
+.venn-zone.zone-outer {
+    position: absolute;
+    inset: 0;
+    background: rgba(99, 99, 102, 0.1);
+    border: 2px dashed #636366;
+    border-radius: var(--radius-lg);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: flex-end;
+    padding: var(--spacing-md);
+}
+
+/* Contenedor de círculos */
+.venn-circles {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 360px;
+    height: 200px;
+}
+
+/* Círculos A y B */
+.venn-circle {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    border: 3px solid var(--circle-color, #34C759);
+    background: color-mix(in srgb, var(--circle-color, #34C759) 10%, transparent);
+}
+
+.venn-circle.circle-a {
+    left: 0;
+}
+
+.venn-circle.circle-b {
+    right: 0;
+}
+
+/* Zonas de drop */
+.venn-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    min-height: 60px;
+}
+
+.venn-zone.zone-left,
+.venn-zone.zone-right {
+    position: absolute;
+    width: 100px;
+    height: 100%;
+}
+
+.venn-zone.zone-left {
+    left: 0;
+    border-radius: 100px 0 0 100px;
+}
+
+.venn-zone.zone-right {
+    right: 0;
+    border-radius: 0 100px 100px 0;
+}
+
+.venn-zone.zone-center {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px;
+    height: 120px;
+    background: rgba(191, 90, 242, 0.2);
+    border: 2px solid #BF5AF2;
+    border-radius: 40px;
+    z-index: 5;
+}
+
+/* Feedback visual en zonas */
+.venn-zone.success {
+    background: rgba(52, 199, 89, 0.3) !important;
+    box-shadow: 0 0 20px rgba(52, 199, 89, 0.5);
+}
+
+.venn-zone.error {
+    background: rgba(255, 69, 58, 0.3) !important;
+    box-shadow: 0 0 20px rgba(255, 69, 58, 0.5);
+}
+
+.zone-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 4px;
+}
+
+.zone-numbers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    justify-content: center;
+}
+
+.sorted-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: var(--color-success);
+    border-radius: 50%;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: white;
+}
+
+/* Hint */
+.venn-hint {
+    color: var(--text-tertiary);
+    font-size: 0.875rem;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .sp-modes-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .venn-diagram {
+        height: 250px;
+    }
+
+    .venn-circles {
+        width: 280px;
+        height: 160px;
+    }
+
+    .venn-circle {
+        width: 160px;
+        height: 160px;
+    }
+
+    .draggable-number {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+    }
+}

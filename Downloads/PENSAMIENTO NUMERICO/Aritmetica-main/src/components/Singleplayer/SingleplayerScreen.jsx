@@ -3,30 +3,51 @@
  * @description Pantalla principal del modo Singleplayer con rondas especiales.
  * 
  * Gestiona el flujo de juego singleplayer:
- * 1. Pantalla de configuración inicial
- * 2. Rondas de Ruleta Algebraica
+ * 1. Pantalla de selección de modo
+ * 2. Rondas según el modo seleccionado (Ruleta o Venn)
  * 3. Tracking de puntuación y progreso
  */
 
 import React, { useState, useCallback } from 'react';
 import { ALGEBRAIC_PROPERTIES } from '../../utils/singleplayerLogic';
+import { SET_CONDITIONS } from '../../utils/vennLogic';
 import { soundManager } from '../../utils/SoundManager';
 import RuletaRound from './RuletaRound';
+import VennRound from './VennRound';
 import LiquidCard from '../UI/LiquidCard';
 
 const TOTAL_ROUNDS = 5;
 
+// Definición de modos disponibles
+const GAME_MODES = {
+    ruleta: {
+        id: 'ruleta',
+        name: 'Ruleta Algebraica',
+        emoji: '🎰',
+        description: 'Gira la ruleta y aplica propiedades algebraicas',
+        color: '#BF5AF2'
+    },
+    venn: {
+        id: 'venn',
+        name: 'Venn Sorter',
+        emoji: '🔵',
+        description: 'Clasifica números en el diagrama de Venn',
+        color: '#34C759'
+    }
+};
+
 const SingleplayerScreen = ({ onExit }) => {
     const [phase, setPhase] = useState('config'); // 'config', 'playing', 'results'
+    const [selectedMode, setSelectedMode] = useState(null);
     const [currentRound, setCurrentRound] = useState(1);
     const [score, setScore] = useState({ correct: 0, total: 0 });
     const [roundHistory, setRoundHistory] = useState([]);
-    // Key para forzar remount del componente RuletaRound en cada ronda
     const [roundKey, setRoundKey] = useState(0);
 
-    // Iniciar juego
-    const startGame = () => {
+    // Iniciar juego con modo seleccionado
+    const startGame = (mode) => {
         soundManager.playPop();
+        setSelectedMode(mode);
         setCurrentRound(1);
         setScore({ correct: 0, total: 0 });
         setRoundHistory([]);
@@ -34,17 +55,15 @@ const SingleplayerScreen = ({ onExit }) => {
         setPhase('playing');
     };
 
-    // Manejar fin de ronda (recibe wasCorrect y opcionalmente la propiedad usada)
-    const handleRoundComplete = useCallback((wasCorrect, propertyUsed) => {
-        // Actualizar historial (la propiedad ahora viene de RuletaRound)
-        if (propertyUsed) {
-            setRoundHistory(prev => [...prev, {
-                round: currentRound,
-                property: propertyUsed,
-                propertyName: ALGEBRAIC_PROPERTIES[propertyUsed]?.name || 'Desconocida',
-                correct: wasCorrect
-            }]);
-        }
+    // Manejar fin de ronda
+    const handleRoundComplete = useCallback((wasCorrect, detail) => {
+        // Actualizar historial
+        setRoundHistory(prev => [...prev, {
+            round: currentRound,
+            mode: selectedMode,
+            detail: detail || selectedMode,
+            correct: wasCorrect
+        }]);
 
         // Actualizar puntuación
         setScore(prev => ({
@@ -58,83 +77,100 @@ const SingleplayerScreen = ({ onExit }) => {
             soundManager.playWin();
         } else {
             setCurrentRound(prev => prev + 1);
-            setRoundKey(prev => prev + 1); // Forzar remount para resetear RuletaRound
+            setRoundKey(prev => prev + 1);
         }
-    }, [currentRound]);
+    }, [currentRound, selectedMode]);
+
+    // Volver a configuración
+    const backToConfig = () => {
+        setPhase('config');
+        setSelectedMode(null);
+    };
 
     // Reiniciar juego
     const restartGame = () => {
         soundManager.playPop();
-        startGame();
+        startGame(selectedMode);
     };
 
-    // Pantalla de configuración
+    // ==================
+    // PANTALLA DE CONFIG
+    // ==================
     if (phase === 'config') {
         return (
             <div className="app-background menu-container">
-                <LiquidCard className="singleplayer-config-card">
+                <LiquidCard className="singleplayer-config-card sp-mode-select">
                     <div className="sp-config-header">
                         <span className="sp-config-emoji">🎯</span>
                         <h2>Modo Práctica</h2>
-                        <p>Entrena tus habilidades algebraicas</p>
+                        <p>Elige un modo de entrenamiento</p>
                     </div>
 
-                    <div className="sp-mode-section">
-                        <h3>🎰 Ruleta Algebraica</h3>
-                        <p className="sp-mode-desc">
-                            Gira la ruleta para seleccionar una propiedad algebraica.
-                            Aplica correctamente la propiedad a la expresión mostrada.
-                        </p>
+                    {/* Selector de modos */}
+                    <div className="sp-modes-grid">
+                        {/* Modo Ruleta */}
+                        <button
+                            className="sp-mode-card"
+                            onClick={() => startGame('ruleta')}
+                            style={{ '--mode-color': GAME_MODES.ruleta.color }}
+                        >
+                            <span className="mode-emoji">{GAME_MODES.ruleta.emoji}</span>
+                            <h3>{GAME_MODES.ruleta.name}</h3>
+                            <p>{GAME_MODES.ruleta.description}</p>
+                            <div className="mode-preview">
+                                {Object.values(ALGEBRAIC_PROPERTIES).slice(0, 3).map((prop, i) => (
+                                    <span key={i} className="preview-badge">{prop.emoji}</span>
+                                ))}
+                            </div>
+                        </button>
 
-                        <div className="sp-properties-preview">
-                            {Object.entries(ALGEBRAIC_PROPERTIES).map(([key, config]) => (
-                                <div
-                                    key={key}
-                                    className="sp-property-badge"
-                                    style={{ '--badge-color': config.color }}
-                                >
-                                    <span>{config.emoji}</span>
-                                    <span>{config.name}</span>
-                                </div>
-                            ))}
-                        </div>
+                        {/* Modo Venn */}
+                        <button
+                            className="sp-mode-card"
+                            onClick={() => startGame('venn')}
+                            style={{ '--mode-color': GAME_MODES.venn.color }}
+                        >
+                            <span className="mode-emoji">{GAME_MODES.venn.emoji}</span>
+                            <h3>{GAME_MODES.venn.name}</h3>
+                            <p>{GAME_MODES.venn.description}</p>
+                            <div className="mode-preview">
+                                <span className="preview-badge">A∩B</span>
+                                <span className="preview-badge">A-B</span>
+                                <span className="preview-badge">∅</span>
+                            </div>
+                        </button>
                     </div>
 
                     <div className="sp-config-info">
                         <div className="info-item">
                             <span className="info-icon">🎮</span>
-                            <span>{TOTAL_ROUNDS} rondas</span>
-                        </div>
-                        <div className="info-item">
-                            <span className="info-icon">🎲</span>
-                            <span>Propiedades aleatorias</span>
+                            <span>{TOTAL_ROUNDS} rondas por modo</span>
                         </div>
                     </div>
 
-                    <div className="sp-config-actions">
-                        <button onClick={startGame} className="btn btn-primary btn-large pulse-btn">
-                            ▶️ INICIAR PRÁCTICA
-                        </button>
-                        <button onClick={onExit} className="btn btn-secondary">
-                            ← Volver al Menú
-                        </button>
-                    </div>
+                    <button onClick={onExit} className="btn btn-secondary">
+                        ← Volver al Menú
+                    </button>
                 </LiquidCard>
             </div>
         );
     }
 
-    // Pantalla de juego
+    // ==================
+    // PANTALLA DE JUEGO
+    // ==================
     if (phase === 'playing') {
+        const modeInfo = GAME_MODES[selectedMode];
+
         return (
             <div className="app-background">
                 <div className="singleplayer-container">
                     {/* Header */}
                     <header className="sp-header">
-                        <button onClick={onExit} className="btn-icon" title="Salir">🏠</button>
+                        <button onClick={backToConfig} className="btn-icon" title="Salir">🏠</button>
                         <div className="sp-progress">
                             <span className="sp-round-indicator">
-                                Ronda {currentRound} / {TOTAL_ROUNDS}
+                                {modeInfo.emoji} Ronda {currentRound} / {TOTAL_ROUNDS}
                             </span>
                             <div className="sp-progress-bar">
                                 <div
@@ -150,19 +186,32 @@ const SingleplayerScreen = ({ onExit }) => {
                         </div>
                     </header>
 
-                    {/* Ronda actual - key fuerza remount */}
-                    <RuletaRound
-                        key={roundKey}
-                        onComplete={handleRoundComplete}
-                        roundNumber={currentRound}
-                        isLastRound={currentRound >= TOTAL_ROUNDS}
-                    />
+                    {/* Ronda según modo */}
+                    {selectedMode === 'ruleta' && (
+                        <RuletaRound
+                            key={roundKey}
+                            onComplete={handleRoundComplete}
+                            roundNumber={currentRound}
+                            isLastRound={currentRound >= TOTAL_ROUNDS}
+                        />
+                    )}
+
+                    {selectedMode === 'venn' && (
+                        <VennRound
+                            key={roundKey}
+                            onComplete={handleRoundComplete}
+                            roundNumber={currentRound}
+                            isLastRound={currentRound >= TOTAL_ROUNDS}
+                        />
+                    )}
                 </div>
             </div>
         );
     }
 
-    // Pantalla de resultados
+    // =====================
+    // PANTALLA DE RESULTADOS
+    // =====================
     if (phase === 'results') {
         const percentage = score.total > 0 ? Math.round((score.correct / score.total) * 100) : 0;
         const grade = percentage >= 80 ? '🏆' : percentage >= 60 ? '⭐' : percentage >= 40 ? '📚' : '💪';
@@ -170,13 +219,14 @@ const SingleplayerScreen = ({ onExit }) => {
             : percentage >= 60 ? '¡Buen trabajo!'
                 : percentage >= 40 ? 'Sigue practicando'
                     : '¡No te rindas!';
+        const modeInfo = GAME_MODES[selectedMode];
 
         return (
             <div className="app-background menu-container">
                 <LiquidCard className="sp-results-card">
                     <div className="sp-results-header">
                         <span className="results-grade-emoji">{grade}</span>
-                        <h2>Resultados</h2>
+                        <h2>Resultados - {modeInfo?.name}</h2>
                         <p className="results-message">{message}</p>
                     </div>
 
@@ -199,7 +249,8 @@ const SingleplayerScreen = ({ onExit }) => {
                                 >
                                     <span className="entry-round">R{entry.round}</span>
                                     <span className="entry-property">
-                                        {ALGEBRAIC_PROPERTIES[entry.property]?.emoji} {entry.propertyName}
+                                        {modeInfo?.emoji} {entry.mode === 'venn' ? 'Venn Sorter' :
+                                            (ALGEBRAIC_PROPERTIES[entry.detail]?.name || entry.detail)}
                                     </span>
                                     <span className="entry-result">
                                         {entry.correct ? '✓' : '✗'}
@@ -212,6 +263,9 @@ const SingleplayerScreen = ({ onExit }) => {
                     <div className="sp-results-actions">
                         <button onClick={restartGame} className="btn btn-primary">
                             🔄 Jugar de Nuevo
+                        </button>
+                        <button onClick={backToConfig} className="btn btn-secondary">
+                            🎯 Cambiar Modo
                         </button>
                         <button onClick={onExit} className="btn btn-secondary">
                             ← Volver al Menú
