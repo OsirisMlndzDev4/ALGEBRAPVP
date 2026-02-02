@@ -3,7 +3,7 @@ import React from 'react';
 import { DIFFICULTY_CONFIG } from '../../utils/gameLogic';
 import LiquidCard from '../UI/LiquidCard';
 
-const MainMenu = ({ difficulty, setDifficulty, onStart, onDemo }) => {
+const MainMenu = ({ difficulty, setDifficulty, onStart, onDemo, onMultiplayer }) => {
     const selectedConfig = DIFFICULTY_CONFIG[difficulty];
 
     return (
@@ -80,6 +80,9 @@ const MainMenu = ({ difficulty, setDifficulty, onStart, onDemo }) => {
                 <div className="menu-actions">
                     <button onClick={onStart} className="btn btn-primary menu-btn-large pulse-btn">
                         CONFIGURAR PARTIDA ⚔️
+                    </button>
+                    <button onClick={onMultiplayer} className="btn btn-secondary menu-btn-large">
+                        🌐 MULTIJUGADOR LAN
                     </button>
                     <button onClick={onDemo} className="btn btn-secondary menu-btn-demo">
                         🤖 VER DEMO CPU vs CPU

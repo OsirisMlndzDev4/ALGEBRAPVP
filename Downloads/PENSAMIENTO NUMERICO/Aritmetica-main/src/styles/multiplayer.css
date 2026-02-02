@@ -1,0 +1,869 @@
+/**
+ * @file src/styles/multiplayer.css
+ * @description Estilos para el modo multijugador LAN
+ */
+
+/* ========================================
+   MULTIPLAYER CONNECTING SCREEN
+   ======================================== */
+
+.multiplayer-connecting {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.connecting-content {
+    text-align: center;
+    padding: 3rem;
+    max-width: 500px;
+}
+
+.connecting-content h2 {
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.connecting-content p {
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 2rem;
+}
+
+.connecting-content code {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-family: monospace;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(255, 255, 255, 0.2);
+    border-top-color: var(--color-primary, #34C759);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 2rem auto;
+}
+
+.spinner-sm {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-top-color: var(--color-primary, #34C759);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ========================================
+   LOBBY SCREEN
+   ======================================== */
+
+.lobby-screen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+}
+
+.lobby-container {
+    width: 100%;
+    max-width: 600px;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.lobby-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.lobby-header h1 {
+    flex: 1;
+    font-size: 1.5rem;
+    color: white;
+    margin: 0;
+}
+
+.lobby-error {
+    background: rgba(255, 69, 58, 0.2);
+    border: 1px solid rgba(255, 69, 58, 0.4);
+    color: #FF453A;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Lobby Main View */
+.lobby-main {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.lobby-name-input {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.lobby-name-input label {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.875rem;
+}
+
+.input-field {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.input-field:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: var(--color-primary, #34C759);
+    box-shadow: 0 0 0 3px rgba(52, 199, 89, 0.2);
+}
+
+.input-field::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.lobby-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.lobby-btn {
+    flex: 1;
+    min-width: 150px;
+    padding: 1rem;
+    font-size: 1rem;
+}
+
+/* Available Lobbies */
+.available-lobbies {
+    margin-top: 1rem;
+}
+
+.available-lobbies h3 {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+
+.lobby-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.lobby-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+}
+
+.lobby-info {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.lobby-host {
+    color: white;
+    font-weight: 600;
+}
+
+.lobby-code {
+    background: rgba(0, 122, 255, 0.2);
+    color: #007AFF;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: 0.875rem;
+}
+
+.lobby-difficulty {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.875rem;
+    text-transform: capitalize;
+}
+
+/* Join View */
+.lobby-join {
+    text-align: center;
+}
+
+.lobby-join h3 {
+    color: white;
+    margin-bottom: 1.5rem;
+}
+
+.room-code-input {
+    text-align: center;
+    font-size: 2rem;
+    letter-spacing: 0.5rem;
+    text-transform: uppercase;
+    font-weight: bold;
+    max-width: 200px;
+    margin: 0 auto 1.5rem;
+}
+
+/* Waiting View */
+.lobby-waiting {
+    text-align: center;
+}
+
+.lobby-waiting h2 {
+    color: white;
+    margin-bottom: 2rem;
+}
+
+.room-code-display {
+    background: linear-gradient(135deg, #34C759, #30D158);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.players-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+.player-slot {
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    padding: 1.5rem 2rem;
+    min-width: 150px;
+    transition: all 0.3s ease;
+}
+
+.player-slot.filled {
+    background: rgba(52, 199, 89, 0.1);
+    border: 2px solid rgba(52, 199, 89, 0.4);
+}
+
+.player-slot.empty {
+    opacity: 0.6;
+}
+
+.player-slot .player-name {
+    display: block;
+    color: white;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.player-slot .player-role {
+    display: block;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.vs-divider {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* ========================================
+   MULTIPLAYER GAME SCREEN
+   ======================================== */
+
+.multiplayer-game {
+    min-height: 100vh;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.mp-game-header {
+    text-align: center;
+    padding: 0.5rem;
+}
+
+.mp-room-info {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.mp-room-code {
+    background: rgba(0, 122, 255, 0.2);
+    padding: 0.25rem 0.75rem;
+    border-radius: 8px;
+    font-family: monospace;
+}
+
+.mp-round {
+    font-weight: 600;
+    color: white;
+}
+
+/* Players Bar */
+.mp-players-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mp-player {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    position: relative;
+}
+
+.mp-player.opponent {
+    align-items: flex-end;
+}
+
+.mp-player-name {
+    color: white;
+    font-weight: 600;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.mp-hp-bar {
+    width: 100%;
+    max-width: 200px;
+    height: 24px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+}
+
+.mp-hp-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #34C759, #30D158);
+    border-radius: 12px;
+    transition: width 0.5s ease;
+}
+
+.mp-hp-text {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.mp-status.ready {
+    color: #34C759;
+    font-size: 0.875rem;
+}
+
+.mp-vs {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* Target Display */
+.mp-target-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.mp-target-label {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.mp-target-value {
+    font-size: 3rem;
+    font-weight: bold;
+    color: white;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+/* Variables Display */
+.mp-variables {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    background: rgba(191, 90, 242, 0.1);
+    border: 1px solid rgba(191, 90, 242, 0.3);
+    border-radius: 12px;
+}
+
+.mp-variables-label {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.875rem;
+}
+
+.mp-variables-list {
+    display: flex;
+    gap: 1rem;
+}
+
+.mp-variable {
+    background: rgba(191, 90, 242, 0.2);
+    color: #BF5AF2;
+    padding: 0.25rem 0.75rem;
+    border-radius: 8px;
+    font-family: monospace;
+    font-weight: 600;
+}
+
+/* Expression Area */
+.mp-expression-area {
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+}
+
+.mp-expression-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    min-height: 50px;
+}
+
+.mp-expression-text {
+    font-size: 1.5rem;
+    font-family: monospace;
+    color: white;
+}
+
+.mp-expression-preview {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 1.25rem;
+}
+
+/* Cards Area */
+.mp-cards-area {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    padding: 1rem;
+}
+
+.mp-card {
+    width: 60px;
+    height: 80px;
+    background: linear-gradient(135deg, #1c1c2e, #2a2a4e);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mp-card:hover:not(.used):not(:disabled) {
+    transform: translateY(-5px);
+    border-color: var(--color-primary, #34C759);
+    box-shadow: 0 8px 20px rgba(52, 199, 89, 0.3);
+}
+
+.mp-card.used {
+    opacity: 0.3;
+    transform: scale(0.9);
+    cursor: not-allowed;
+}
+
+.mp-card.variable-card {
+    background: linear-gradient(135deg, #4a1c6e, #6a2a8e);
+    border-color: rgba(191, 90, 242, 0.4);
+}
+
+/* Operators Area */
+.mp-operators-area {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.mp-operator {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    color: white;
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.mp-operator:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.mp-operator:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Actions Area */
+.mp-actions-area {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding: 1rem;
+}
+
+/* Waiting Message */
+.mp-waiting-message {
+    text-align: center;
+    padding: 1rem;
+    color: rgba(255, 255, 255, 0.8);
+    animation: pulse 2s infinite;
+}
+
+/* ========================================
+   ROUND RESULT SCREEN
+   ======================================== */
+
+.round-result-screen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+}
+
+.round-result-content {
+    width: 100%;
+    max-width: 700px;
+    padding: 2rem;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.result-header h2 {
+    color: white;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.result-target {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.result-winner-banner {
+    font-size: 1.75rem;
+    font-weight: bold;
+    color: white;
+    padding: 1rem;
+    margin: 1.5rem 0;
+    background: linear-gradient(135deg, rgba(52, 199, 89, 0.2), rgba(52, 199, 89, 0.1));
+    border-radius: 12px;
+}
+
+.results-comparison {
+    display: flex;
+    align-items: stretch;
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.result-card {
+    flex: 1;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.result-card.result-perfect {
+    border-color: rgba(52, 199, 89, 0.5);
+    background: rgba(52, 199, 89, 0.1);
+}
+
+.result-card.result-miss {
+    border-color: rgba(255, 69, 58, 0.5);
+    background: rgba(255, 69, 58, 0.1);
+}
+
+.result-player-name {
+    color: white;
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+}
+
+.result-expression {
+    font-family: monospace;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.result-value {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+.result-stats {
+    display: flex;
+    justify-content: space-around;
+    gap: 1rem;
+}
+
+.result-damage {
+    color: #FF453A;
+}
+
+.result-hp {
+    color: #34C759;
+}
+
+.result-vs-divider {
+    display: flex;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.4);
+    font-weight: bold;
+    padding: 0 0.5rem;
+}
+
+.continue-btn {
+    margin-top: 1.5rem;
+    padding: 1rem 2rem;
+}
+
+/* ========================================
+   GAME OVER SCREEN (Multiplayer)
+   ======================================== */
+
+.multiplayer-gameover {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.gameover-content {
+    text-align: center;
+    padding: 3rem;
+    max-width: 500px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.gameover-title {
+    font-size: 2.5rem;
+    color: white;
+    margin-bottom: 1rem;
+}
+
+.gameover-winner {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+}
+
+/* ========================================
+   ANIMATIONS & EFFECTS
+   ======================================== */
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    10%,
+    30%,
+    50%,
+    70%,
+    90% {
+        transform: translateX(-5px);
+    }
+
+    20%,
+    40%,
+    60%,
+    80% {
+        transform: translateX(5px);
+    }
+}
+
+@keyframes flash-red {
+    0% {
+        background-color: rgba(255, 0, 0, 0);
+    }
+
+    10% {
+        background-color: rgba(255, 69, 58, 0.5);
+    }
+
+    100% {
+        background-color: rgba(255, 0, 0, 0);
+    }
+}
+
+@keyframes float-up {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(-50px) scale(1.5);
+        opacity: 0;
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.6;
+    }
+}
+
+.shake-effect {
+    animation: shake 0.5s cubic-bezier(.36, .07, .19, .97) both;
+}
+
+.flash-effect {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    animation: flash-red 0.5s ease-out;
+    z-index: 1000;
+}
+
+.damage-popup {
+    position: absolute;
+    top: -20px;
+    right: 10px;
+    color: #FF453A;
+    font-weight: 900;
+    font-size: 1.5rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    animation: float-up 1s ease-out forwards;
+    pointer-events: none;
+    z-index: 20;
+}
+
+.streak-fire {
+    animation: pulse 1s infinite alternate;
+    filter: drop-shadow(0 0 5px orange);
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 600px) {
+    .mp-players-bar {
+        flex-direction: column;
+    }
+
+    .mp-player.opponent {
+        align-items: flex-start;
+    }
+
+    .mp-vs {
+        font-size: 1rem;
+    }
+
+    .mp-card {
+        width: 50px;
+        height: 65px;
+        font-size: 1.25rem;
+    }
+
+    .mp-operator {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+
+    .results-comparison {
+        flex-direction: column;
+    }
+
+    .result-vs-divider {
+        padding: 0.5rem 0;
+    }
+}

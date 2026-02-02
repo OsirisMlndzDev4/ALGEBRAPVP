@@ -29,6 +29,7 @@ import PlayerHistory from './components/Game/PlayerHistory';
  */
 
 import DemoScreen from './components/Demo/DemoScreen';
+import MultiplayerScreen from './components/Multiplayer/MultiplayerScreen';
 
 /**
  * Componente principal de la aplicación.
@@ -529,8 +530,13 @@ const ArithmeticPvPGame = () => {
         setDifficulty={setDifficulty}
         onStart={() => setGameState('setup')}
         onDemo={() => setGameState('demo')}
+        onMultiplayer={() => setGameState('multiplayer')}
       />
     );
+  }
+
+  if (gameState === 'multiplayer') {
+    return <MultiplayerScreen difficulty={difficulty} onExit={() => setGameState('menu')} />;
   }
 
   if (gameState === 'demo') {
