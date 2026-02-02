@@ -30,6 +30,7 @@ import PlayerHistory from './components/Game/PlayerHistory';
 
 import DemoScreen from './components/Demo/DemoScreen';
 import MultiplayerScreen from './components/Multiplayer/MultiplayerScreen';
+import SingleplayerScreen from './components/Singleplayer/SingleplayerScreen';
 
 /**
  * Componente principal de la aplicación.
@@ -531,12 +532,17 @@ const ArithmeticPvPGame = () => {
         onStart={() => setGameState('setup')}
         onDemo={() => setGameState('demo')}
         onMultiplayer={() => setGameState('multiplayer')}
+        onSingleplayer={() => setGameState('singleplayer')}
       />
     );
   }
 
   if (gameState === 'multiplayer') {
     return <MultiplayerScreen difficulty={difficulty} onExit={() => setGameState('menu')} />;
+  }
+
+  if (gameState === 'singleplayer') {
+    return <SingleplayerScreen onExit={() => setGameState('menu')} />;
   }
 
   if (gameState === 'demo') {
